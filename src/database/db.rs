@@ -3,6 +3,8 @@ extern crate postgres;
 use openssl::ssl::{SslConnector, SslMethod};
 use postgres_openssl::MakeTlsConnector;
 
+use crate::json_struct;
+
 use postgres::{Client, NoTls};
 
 // Тестовое соединение без SSL, для включения SSL надо раскоментить строчку билдера и вставить билдер вместо NoTls. И настроить сервер Постгреса на работу с SSL.
@@ -41,7 +43,8 @@ impl Db {
     }
 
     // Обращение к бд с лимитом. Если лимит меньше нуля, то выдаст все данные, иначе, выдаст с учетом лимита.
-    pub fn get_hotel(self, limit: i32) {
+    pub fn get_hotel(self, limit: i32) -> Vec<json_struct::hotel::Hotel> {
+        let mut v: Vec<json_struct::hotel::Hotel> = Vec::new();
         let mut query: String;
         if limit < 0 {
             query = String::from("select id, namehotel, stars from hotel");
@@ -54,8 +57,15 @@ impl Db {
             let namehotel: &str = row.get(1);
             let stars: i32 = row.get(2);
 
+            v.push(json_struct::hotel::Hotel {
+                id: 1,
+                name: String::from(namehotel),
+                stars: stars,
+            });
             println!("found hotel: {} {} {:?}", id, namehotel, stars);
         }
+
+        v
     }
 
     pub fn get_apartment(all_hotel: bool) {}
