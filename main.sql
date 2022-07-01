@@ -69,12 +69,12 @@ insert into organization (orgname) values ();
 
 
 --Сделаем все на формате json
-drop table hotel_j;
-drop table classRoom_j;
-drop table apartment_j;
-drop table booking_j;
-drop table photo_j;
-drop table organization_j;
+drop table if exists hotel_j;
+drop table if exists classRoom_j;
+drop table if exists apartment_j;
+drop table if exists booking_j;
+drop table if exists photo_j;
+drop table if exists organization_j;
 --В формате json
 create table hotel_j (
     hotj jsonb,
@@ -111,11 +111,13 @@ create table booking_j (
 create unique index ui_bookingj_id on booking_j((booj->'id'));
 
 create table photo_j (
-    phoj jsonb--ограничение на пустую строку и null
-    constraint validate_phoid check ((phoj->>'id') is not null and (length(phoj->>'id')) > 0)
+    phoid uuid,
+    phoimage bytea,
+    hotelId uuid,
+    apartmentId uuid
+    --constraint fk_photelId foreign key (hotelId) references hotel_j ((hotj->>'id')::uuid) on delete cascade,
+    --constraint fk_papartmentId foreign key (apartmentId) references apartment_j ((apaj->>'id')::uuid) on delete cascade
 );
-
-create unique index ui_photoj_id on photo_j((phoj->'id'));
 
 create table organization_j (
     orgj jsonb--ограничение на пустую строку и null
