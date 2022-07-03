@@ -9,13 +9,13 @@ use postgres::{Client, NoTls};
 
 // Тестовое соединение без SSL, для включения SSL надо раскоментить строчку билдера и вставить билдер вместо NoTls. И настроить сервер Постгреса на работу с SSL.
 pub fn test() {
-    /*let mut builder = SslConnector::builder(SslMethod::tls()).unwrap();
+    let mut builder = SslConnector::builder(SslMethod::tls_client()).unwrap();
     builder.set_ca_file("database_cert.pem").unwrap();
-    let connector = MakeTlsConnector::new(builder.build());*/
+    let connector = MakeTlsConnector::new(builder.build());
 
     let mut client = Client::connect(
-        "host=localhost port=5432 dbname=booking user=postgres",
-        NoTls,
+        "host=ec2-3-222-74-92.compute-1.amazonaws.com port=5432 dbname=d7742l4lf1egjv user=nibyntbbqdemhi password=c4e28ccf34294f5f66f644f983c2e5358e89b2c08a69d5d07e5e9e70e79eeee9 sslmode=require",
+        connector, //NoTls,
     )
     .unwrap();
 
@@ -36,7 +36,7 @@ pub struct Db {}
 impl Db {
     pub fn connecting(self) -> Client {
         Client::connect(
-            "host=localhost port=5432 dbname=booking user=postgres",
+            "host=localhost port=5432 dbname=booking user=postgres password=1qazxsw2",
             NoTls,
         )
         .unwrap()

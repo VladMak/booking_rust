@@ -22,7 +22,7 @@ struct Task {
 #[get("/getHotel/<id>")]
 fn get_hotel(id: i32) -> String {
     let dbv = db::Db {};
-    let res = thread::spawn(move || dbv.get_hotel(id))
+    let res = thread::spawn(move || dbv.get_hotelj(id))
         .join()
         .expect("Thread panicked");
     let j = serde_json::to_string(&res).unwrap();
@@ -32,7 +32,7 @@ fn get_hotel(id: i32) -> String {
 #[get("/getApartment/<id>")]
 fn get_apartment(id: i32) -> String {
     let dbv = db::Db {};
-    let res = thread::spawn(move || dbv.get_apartment(id))
+    let res = thread::spawn(move || dbv.get_apartmentj(id))
         .join()
         .expect("Thread panicked");
     let j = serde_json::to_string(&res).unwrap();
@@ -67,7 +67,7 @@ fn set_booking(data: String) -> String {
 fn insert_organization(user: String) -> String {
     let dbv = db::Db {};
     println!("{}", user);
-    thread::spawn(move || dbv.insert_organization(user))
+    thread::spawn(move || dbv.insert_organizationj(user))
         .join()
         .expect("Thread panicked");
     String::from("true")
@@ -89,7 +89,7 @@ fn insert_hotelj(hotel: String) -> String {
 fn insert_hotel(hotel: String) -> String {
     let dbv = db::Db {};
     println!("{}", hotel);
-    thread::spawn(move || dbv.insert_hotel(hotel))
+    thread::spawn(move || dbv.insert_hotelj(hotel))
         .join()
         .expect("Thread panicked");
     String::from("true")
@@ -101,7 +101,7 @@ fn insert_hotel(hotel: String) -> String {
 fn insert_apartment(apartment: String) -> String {
     let dbv = db::Db {};
     println!("{}", apartment);
-    thread::spawn(move || dbv.insert_apartment(apartment))
+    thread::spawn(move || dbv.insert_apartmentj(apartment))
         .join()
         .expect("Thread panicked");
     String::from("true ap")
