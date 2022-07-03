@@ -126,6 +126,15 @@ create table organization_j (
 
 create unique index ui_organizationj_id on organization_j((orgj->'id'));
 
+create table user_j (
+    usej jsonb,
+    constraint validate_useid check ((usej->>'id') is not null and (length(usej->>'id')) > 0)
+);
+
+create unique index ui_user_id on user_j((usej->'id'));
+create unique index ui_user_email on user_j((usej->'email'));
+create unique index ui_user_email on user_j((usej->'token'));
+
 --Пример вставки
 insert into hotel_j (hotj) values (('{"id":"'||gen_random_uuid()||'","name":"Vlad"}')::jsonb);
 

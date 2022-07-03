@@ -191,6 +191,54 @@ impl Db {
         println!("{:?}", e);
     }
 
+    // Работа с юзерами
+    pub fn insert_user(self, user: String) -> u64 {
+        let mut client = self.connecting();
+        let mut query: String = String::from("insert into user_j (usej) values ('");
+        query.push_str(&user);
+        query.push_str("');");
+        println!("{}", query);
+        let e = client.execute(&query, &[]);
+        println!("{:?}", e);
+        let result = match e {
+            Ok(res) => res,
+            Err(error) => 2,
+        };
+        result
+    }
+
+    pub fn login(self, user: String) -> Vec<json_struct::user::User_j> {
+        let mut v: Vec<json_struct::user::User_j> = Vec::new();
+        let userloc: json_struct::user::UserLogin = serde_json::from_str(&user).unwrap();
+        let mut query: String = String::from("select usej from user_j");
+        query.push_str(" where usej->>'email' = '");
+        query.push_str(&userloc.email);
+        query.push_str("' and  usej->>'password' = '");
+        query.push_str(&userloc.password);
+        query.push_str("';");
+        for row in self.connecting().query(&query, &[]).unwrap() {
+            let usej: serde_json::Value = row.get(0);
+            v.push(json_struct::user::User_j { usej: usej });
+        }
+
+        v
+    }
+
+    pub fn check_token(self, token: String) -> Vec<json_struct::user::User_j> {
+        let mut v: Vec<json_struct::user::User_j> = Vec::new();
+        let userloc: json_struct::user::UserCheck = serde_json::from_str(&token).unwrap();
+        let mut query: String = String::from("select usej from user_j");
+        query.push_str(" where usej->>'token' = '");
+        query.push_str(&userloc.token);
+        query.push_str("';");
+        for row in self.connecting().query(&query, &[]).unwrap() {
+            let usej: serde_json::Value = row.get(0);
+            v.push(json_struct::user::User_j { usej: usej });
+        }
+
+        v
+    }
+
     pub fn insert_hotelj(self, hotel: String) {
         let mut client = self.connecting();
         let mut query: String = String::from("insert into hotel_j (hotj) values ('");

@@ -4,3 +4,4 @@ pub mod booking;
 pub mod hotel;
 pub mod hotel_j;
 pub mod organization;
+pub mod user;

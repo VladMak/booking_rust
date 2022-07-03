@@ -57,10 +57,10 @@ fn set_booking(data: String) -> String {
     /*thread::spawn(move || dbv.check_booking())
     .join()
     .expect("Thread panicked");*/
-    /*println!("{}", data);
+    println!("{}", data);
     thread::spawn(move || dbv.set_booking(data))
         .join()
-        .expect("Thread panicked");*/
+        .expect("Thread panicked");
     String::from("true")
 }
 
@@ -110,6 +110,41 @@ fn insert_apartment(apartment: String) -> String {
     String::from("true ap")
 }
 
+#[put("/insertUser", format = "application/json", data = "<user>")]
+fn insert_user(user: String) -> String {
+    let dbv = db::Db {};
+    println!("{}", user);
+    let result = thread::spawn(move || dbv.insert_user(user))
+        .join()
+        .expect("Thread panicked");
+    if result == 1 {
+        String::from("ok")
+    } else {
+        String::from("err")
+    }
+}
+
+#[get("/login", format = "application/json", data = "<user>")]
+fn login(user: String) -> String {
+    let dbv = db::Db {};
+    println!("{}", user);
+    let res = thread::spawn(move || dbv.login(user))
+        .join()
+        .expect("Thread panicked");
+    let j = serde_json::to_string(&res).unwrap();
+    j
+}
+
+#[get("/checkToken", format = "application/json", data = "<token>")]
+fn get_user(token: String) -> String {
+    let dbv = db::Db {};
+    let res = thread::spawn(move || dbv.check_token(token))
+        .join()
+        .expect("Thread panicked");
+    let j = serde_json::to_string(&res).unwrap();
+    j
+}
+
 #[get("/")]
 fn index() -> String {
     let test = Task {
@@ -132,4 +167,7 @@ fn rocket() -> _ {
         .mount("/", routes![insert_hotelj])
         .mount("/", routes![get_hotelj])
         .mount("/", routes![set_booking])
+        .mount("/", routes![insert_user])
+        .mount("/", routes![get_user])
+        .mount("/", routes![login])
 }
