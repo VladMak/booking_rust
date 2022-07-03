@@ -1,5 +1,6 @@
 extern crate postgres;
 
+use chrono::NaiveDate;
 use openssl::ssl::{SslConnector, SslMethod};
 use postgres_openssl::MakeTlsConnector;
 
@@ -56,14 +57,31 @@ impl Db {
         client.execute(&query, &[&value]);
     }
 
-    pub fn check_booking(self) {}
+    pub fn check_booking(self) {
+        let mut v: Vec<json_struct::booking::Booking_j> = Vec::new();
+        let mut query: String = String::from("select booj from booking_j where booj->>'id' = '1';");
+        for row in self.connecting().query(&query, &[]).unwrap() {
+            let booj: serde_json::Value = row.get(0);
+            v.push(json_struct::booking::Booking_j { booj: booj });
+        }
+        let apartId = &v[0].booj["apartmentId"];
+        let mut dateFrom = NaiveDate::parse_from_str(
+            &str::replace(&v[0].booj["dateFrom"].to_string(), "\"", ""),
+            "%Y-%m-%d",
+        );
+        let mut dateTo = NaiveDate::parse_from_str(
+            &str::replace(&v[0].booj["dateTo"].to_string(), "\"", ""),
+            "%Y-%m-%d",
+        );
+    }
 
     pub fn get_hotelj(self, id: i32) -> Vec<json_struct::hotel_j::Hotel_j> {
         let mut v: Vec<json_struct::hotel_j::Hotel_j> = Vec::new();
         let mut query: String = String::from("select hotj from hotel_j");
         if id > 0 {
-            query.push_str(" where id = ");
+            query.push_str(" where hotj->>'id' = '");
             query.push_str(&id.to_string());
+            query.push_str("';");
         }
         for row in self.connecting().query(&query, &[]).unwrap() {
             let hotj: serde_json::Value = row.get(0);

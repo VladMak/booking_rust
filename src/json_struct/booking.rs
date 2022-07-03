@@ -10,3 +10,8 @@ pub struct Booking {
     pub dateFrom: NaiveDate,
     pub dateTo: NaiveDate,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Booking_j {
+    pub booj: serde_json::Value,
+}

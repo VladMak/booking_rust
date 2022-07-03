@@ -130,6 +130,7 @@ create unique index ui_organizationj_id on organization_j((orgj->'id'));
 insert into hotel_j (hotj) values (('{"id":"'||gen_random_uuid()||'","name":"Vlad"}')::jsonb);
 
 insert into hotel_j (hotj) values (('{"id":"404f6ed9-0062-494a-8bd5-7a1726656528","name":"Vlad"}')::jsonb);
+insert into booking_j (booj) values (('{"id": 1, "hotelId": 1, "apartmentId": 1, "dateFrom": "2022-01-01", "dateTo": "2022-01-17"}'));
 
 
 

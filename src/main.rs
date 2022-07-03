@@ -51,13 +51,16 @@ fn get_hotelj(id: i32) -> String {
 
 #[put("/setBooking", format = "application/json", data = "<data>")]
 fn set_booking(data: String) -> String {
-    let worker = models::worker::Worker {};
-    worker.check_booking(&data);
+    //let worker = models::worker::Worker {};
+    //worker.check_booking(&data);
     let dbv = db::Db {};
-    println!("{}", data);
+    /*thread::spawn(move || dbv.check_booking())
+    .join()
+    .expect("Thread panicked");*/
+    /*println!("{}", data);
     thread::spawn(move || dbv.set_booking(data))
         .join()
-        .expect("Thread panicked");
+        .expect("Thread panicked");*/
     String::from("true")
 }
 
