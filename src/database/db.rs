@@ -37,7 +37,8 @@ pub struct Db {}
 impl Db {
     pub fn connecting(self) -> Client {
         Client::connect(
-            "host=localhost port=5432 dbname=booking user=postgres password=1qazxsw2",
+            "host=localhost port=5432 dbname=booking user=postgres",
+            //"host=localhost port=5432 dbname=booking user=postgres password=1qazxsw2",
             NoTls,
         )
         .unwrap()
