@@ -37,8 +37,8 @@ pub struct Db {}
 impl Db {
     pub fn connecting(self) -> Client {
         Client::connect(
-            "host=localhost port=5432 dbname=booking user=postgres",
-            //"host=localhost port=5432 dbname=booking user=postgres password=1qazxsw2",
+            //"host=localhost port=5432 dbname=booking user=postgres",
+            "host=localhost port=5432 dbname=booking user=postgres password=1qazxsw2",
             NoTls,
         )
         .unwrap()
@@ -76,10 +76,10 @@ impl Db {
         );
     }
 
-    pub fn get_hotelj(self, id: i32) -> Vec<json_struct::hotel_j::Hotel_j> {
+    pub fn get_hotelj(self, id: String) -> Vec<json_struct::hotel_j::Hotel_j> {
         let mut v: Vec<json_struct::hotel_j::Hotel_j> = Vec::new();
         let mut query: String = String::from("select hotj from hotel_j");
-        if id > 0 {
+        if id != "0" {
             query.push_str(" where hotj->>'id' = '");
             query.push_str(&id.to_string());
             query.push_str("';");
@@ -92,12 +92,28 @@ impl Db {
         v
     }
 
-    pub fn get_apartmentj(self, id: i32) -> Vec<json_struct::apartment_j::Apartment_j> {
+    pub fn get_apartmentj(
+        self,
+        hotel_id: String,
+        id: String,
+    ) -> Vec<json_struct::apartment_j::Apartment_j> {
         let mut v: Vec<json_struct::apartment_j::Apartment_j> = Vec::new();
         let mut query: String = String::from("select apaj from apartment_j");
-        if id > 0 {
-            query.push_str(" where id = ");
+        let mut first_filter = 0;
+        if hotel_id != "0" {
+            query.push_str(" where apaj->>'hotel_id' = '");
             query.push_str(&id.to_string());
+            query.push_str("';");
+            first_filter += 1;
+        }
+        if id != "0" && first_filter == 0 {
+            query.push_str(" where apaj->>'id' = '");
+            query.push_str(&id.to_string());
+            query.push_str("';");
+        } else if id != "0" {
+            query.push_str(" and apaj->>'id' = '");
+            query.push_str(&id.to_string());
+            query.push_str("';");
         }
         for row in self.connecting().query(&query, &[]).unwrap() {
             let hotj: serde_json::Value = row.get(0);

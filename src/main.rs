@@ -20,7 +20,7 @@ struct Task {
 
 // В случае если ID = 0 или меньше нуля, то получим все отели
 #[get("/getHotel/<id>")]
-fn get_hotel(id: i32) -> String {
+fn get_hotel(id: String) -> String {
     let dbv = db::Db {};
     let res = thread::spawn(move || dbv.get_hotelj(id))
         .join()
@@ -29,10 +29,10 @@ fn get_hotel(id: i32) -> String {
     j
 }
 
-#[get("/getApartment/<id>")]
-fn get_apartment(id: i32) -> String {
+#[get("/getApartment/<hotel_id>/<id>")]
+fn get_apartment(hotel_id: String, id: String) -> String {
     let dbv = db::Db {};
-    let res = thread::spawn(move || dbv.get_apartmentj(id))
+    let res = thread::spawn(move || dbv.get_apartmentj(hotel_id, id))
         .join()
         .expect("Thread panicked");
     let j = serde_json::to_string(&res).unwrap();
@@ -40,7 +40,7 @@ fn get_apartment(id: i32) -> String {
 }
 
 #[get("/getHotelj/<id>")]
-fn get_hotelj(id: i32) -> String {
+fn get_hotelj(id: String) -> String {
     let dbv = db::Db {};
     let res = thread::spawn(move || dbv.get_hotelj(id))
         .join()

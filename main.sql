@@ -133,7 +133,7 @@ create table user_j (
 
 create unique index ui_user_id on user_j((usej->'id'));
 create unique index ui_user_email on user_j((usej->'email'));
-create unique index ui_user_email on user_j((usej->'token'));
+create unique index ui_user_token on user_j((usej->'token'));
 
 --Пример вставки
 insert into hotel_j (hotj) values (('{"id":"'||gen_random_uuid()||'","name":"Vlad"}')::jsonb);
