@@ -45,17 +45,43 @@ impl Db {
     }
 
     /*id serial primary key,
-    hotelId integer,
-    apartmentId integer,
+    userId uuid,
+    hotelId uuid,
+    apartmentId uuid,
     dateFrom date,
     dateTo date*/
-    pub fn set_booking(self, value: String) {
+    pub fn set_booking(self, value: String) -> u64 {
         println!("id = {}", value);
         let mut client = self.connecting();
         let mut query: String = String::from("insert into booking_j (booj) values ('");
         query.push_str(&value);
         query.push_str("');");
-        client.execute(&query, &[&value]);
+
+        println!("{}", query);
+        let e = client.execute(&query, &[]);
+
+        println!("{:?}", e);
+        let result = match e {
+            Ok(res) => res,
+            Err(error) => 2,
+        };
+        result
+    }
+
+    pub fn get_booking(self, id: String) -> Vec<json_struct::booking::Booking_j> {
+        let mut v: Vec<json_struct::booking::Booking_j> = Vec::new();
+        let mut query: String = String::from("select booj from booking_j");
+        if id != "0" {
+            query.push_str(" where booj->>'apartmentId' = '");
+            query.push_str(&id.to_string());
+            query.push_str("';");
+        }
+        for row in self.connecting().query(&query, &[]).unwrap() {
+            let booj: serde_json::Value = row.get(0);
+            v.push(json_struct::booking::Booking_j { booj: booj });
+        }
+
+        v
     }
 
     pub fn check_booking(self) {
@@ -101,20 +127,23 @@ impl Db {
         let mut query: String = String::from("select apaj from apartment_j");
         let mut first_filter = 0;
         if hotel_id != "0" {
-            query.push_str(" where apaj->>'hotel_id' = '");
-            query.push_str(&id.to_string());
-            query.push_str("';");
+            query.push_str(" where apaj->>'hotelId' = '");
+            query.push_str(&hotel_id.to_string());
+            query.push_str("'");
             first_filter += 1;
         }
         if id != "0" && first_filter == 0 {
             query.push_str(" where apaj->>'id' = '");
             query.push_str(&id.to_string());
-            query.push_str("';");
+            query.push_str("'");
         } else if id != "0" {
             query.push_str(" and apaj->>'id' = '");
             query.push_str(&id.to_string());
-            query.push_str("';");
+            query.push_str("'");
         }
+
+        query.push_str(";");
+        print!("ЗАПРОС: {}", query);
         for row in self.connecting().query(&query, &[]).unwrap() {
             let hotj: serde_json::Value = row.get(0);
             v.push(json_struct::apartment_j::Apartment_j { hotj: hotj });
@@ -224,14 +253,13 @@ impl Db {
         result
     }
 
-    pub fn login(self, user: String) -> Vec<json_struct::user::User_j> {
+    pub fn login(self, email: String, pswd: String) -> Vec<json_struct::user::User_j> {
         let mut v: Vec<json_struct::user::User_j> = Vec::new();
-        let userloc: json_struct::user::UserLogin = serde_json::from_str(&user).unwrap();
         let mut query: String = String::from("select usej from user_j");
         query.push_str(" where usej->>'email' = '");
-        query.push_str(&userloc.email);
+        query.push_str(&email);
         query.push_str("' and  usej->>'password' = '");
-        query.push_str(&userloc.password);
+        query.push_str(&pswd);
         query.push_str("';");
         for row in self.connecting().query(&query, &[]).unwrap() {
             let usej: serde_json::Value = row.get(0);
@@ -243,10 +271,9 @@ impl Db {
 
     pub fn check_token(self, token: String) -> Vec<json_struct::user::User_j> {
         let mut v: Vec<json_struct::user::User_j> = Vec::new();
-        let userloc: json_struct::user::UserCheck = serde_json::from_str(&token).unwrap();
         let mut query: String = String::from("select usej from user_j");
         query.push_str(" where usej->>'token' = '");
-        query.push_str(&userloc.token);
+        query.push_str(&token);
         query.push_str("';");
         for row in self.connecting().query(&query, &[]).unwrap() {
             let usej: serde_json::Value = row.get(0);

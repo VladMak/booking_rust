@@ -49,6 +49,16 @@ fn get_hotelj(id: String) -> String {
     j
 }
 
+#[get("/getBooking/<id>")]
+fn get_booking(id: String) -> String {
+    let dbv = db::Db {};
+    let res = thread::spawn(move || dbv.get_booking(id))
+        .join()
+        .expect("Thread panicked");
+    let j = serde_json::to_string(&res).unwrap();
+    j
+}
+
 #[put("/setBooking", format = "application/json", data = "<data>")]
 fn set_booking(data: String) -> String {
     //let worker = models::worker::Worker {};
@@ -58,10 +68,14 @@ fn set_booking(data: String) -> String {
     .join()
     .expect("Thread panicked");*/
     println!("{}", data);
-    thread::spawn(move || dbv.set_booking(data))
+    let result = thread::spawn(move || dbv.set_booking(data))
         .join()
         .expect("Thread panicked");
-    String::from("true")
+    if result == 1 {
+        String::from("ok")
+    } else {
+        String::from("err")
+    }
 }
 
 // АДМИН ПАНЕЛЬ
@@ -124,18 +138,18 @@ fn insert_user(user: String) -> String {
     }
 }
 
-#[get("/login", format = "application/json", data = "<user>")]
-fn login(user: String) -> String {
+#[get("/login/<email>/<password>", format = "application/json")]
+fn login(email: String, password: String) -> String {
     let dbv = db::Db {};
-    println!("{}", user);
-    let res = thread::spawn(move || dbv.login(user))
+    println!("{} {}", email, password);
+    let res = thread::spawn(move || dbv.login(email, password))
         .join()
         .expect("Thread panicked");
     let j = serde_json::to_string(&res).unwrap();
     j
 }
 
-#[get("/checkToken", format = "application/json", data = "<token>")]
+#[get("/checkToken/<token>", format = "application/json")]
 fn get_user(token: String) -> String {
     let dbv = db::Db {};
     let res = thread::spawn(move || dbv.check_token(token))
@@ -166,6 +180,7 @@ fn rocket() -> _ {
         .mount("/", routes![get_hotel])
         .mount("/", routes![insert_hotelj])
         .mount("/", routes![get_hotelj])
+        .mount("/", routes![get_booking])
         .mount("/", routes![set_booking])
         .mount("/", routes![insert_user])
         .mount("/", routes![get_user])
