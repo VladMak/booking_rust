@@ -84,6 +84,22 @@ impl Db {
         v
     }
 
+    pub fn get_booking_user(self, id: String) -> Vec<json_struct::booking::Booking_j> {
+        let mut v: Vec<json_struct::booking::Booking_j> = Vec::new();
+        let mut query: String = String::from("select booj from booking_j");
+        if id != "0" {
+            query.push_str(" where booj->>'userId' = '");
+            query.push_str(&id.to_string());
+            query.push_str("';");
+        }
+        for row in self.connecting().query(&query, &[]).unwrap() {
+            let booj: serde_json::Value = row.get(0);
+            v.push(json_struct::booking::Booking_j { booj: booj });
+        }
+
+        v
+    }
+
     pub fn check_booking(self) {
         let mut v: Vec<json_struct::booking::Booking_j> = Vec::new();
         let mut query: String = String::from("select booj from booking_j where booj->>'id' = '1';");

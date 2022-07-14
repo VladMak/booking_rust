@@ -59,6 +59,16 @@ fn get_booking(id: String) -> String {
     j
 }
 
+#[get("/getBookingUser/<id>")]
+fn get_booking_user(id: String) -> String {
+    let dbv = db::Db {};
+    let res = thread::spawn(move || dbv.get_booking_user(id))
+        .join()
+        .expect("Thread panicked");
+    let j = serde_json::to_string(&res).unwrap();
+    j
+}
+
 #[put("/setBooking", format = "application/json", data = "<data>")]
 fn set_booking(data: String) -> String {
     //let worker = models::worker::Worker {};
