@@ -124,7 +124,7 @@ impl Db {
         if id != "0" {
             query.push_str(" where hotj->>'id' = '");
             query.push_str(&id.to_string());
-            query.push_str("';");
+            query.push_str("' and hotj->>'isModified' = 'true';");
         }
         for row in self.connecting().query(&query, &[]).unwrap() {
             let hotj: serde_json::Value = row.get(0);
@@ -138,6 +138,9 @@ impl Db {
         self,
         hotel_id: String,
         id: String,
+        count_room: String,
+        price_low: i32,
+        price_high: i32,
     ) -> Vec<json_struct::apartment_j::Apartment_j> {
         let mut v: Vec<json_struct::apartment_j::Apartment_j> = Vec::new();
         let mut query: String = String::from("select apaj from apartment_j");
@@ -152,10 +155,40 @@ impl Db {
             query.push_str(" where apaj->>'id' = '");
             query.push_str(&id.to_string());
             query.push_str("'");
+            first_filter += 1;
         } else if id != "0" {
             query.push_str(" and apaj->>'id' = '");
             query.push_str(&id.to_string());
             query.push_str("'");
+        }
+
+        if count_room != "0" && first_filter == 0 {
+            query.push_str(" where apaj->>'countRoom' = '");
+            query.push_str(&count_room.to_string());
+            query.push_str("'");
+            first_filter += 1;
+        } else if count_room != "0" {
+            query.push_str(" and apaj->>'countRoom' = '");
+            query.push_str(&count_room.to_string());
+            query.push_str("'");
+        }
+
+        if price_low != 0 && first_filter == 0 {
+            query.push_str(" where apaj->>'price_low' >= ");
+            query.push_str(&price_low.to_string());
+            first_filter += 1;
+        } else if price_low != 0 {
+            query.push_str(" and apaj->>'price_low' >= ");
+            query.push_str(&price_low.to_string());
+        }
+
+        if price_high != 0 && first_filter == 0 {
+            query.push_str(" where apaj->>'price_high' <= ");
+            query.push_str(&price_high.to_string());
+            first_filter += 1;
+        } else if price_high != 0 {
+            query.push_str(" and apaj->>'price_high' <= ");
+            query.push_str(&price_high.to_string());
         }
 
         query.push_str(";");

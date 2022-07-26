@@ -29,12 +29,19 @@ fn get_hotel(id: String) -> String {
     j
 }
 
-#[get("/getApartment/<hotel_id>/<id>")]
-fn get_apartment(hotel_id: String, id: String) -> String {
+#[get("/getApartment/<hotel_id>/<id>/<count_room>/<price_low>/<price_high>")]
+fn get_apartment(
+    hotel_id: String,
+    id: String,
+    count_room: String,
+    price_low: i32,
+    price_high: i32,
+) -> String {
     let dbv = db::Db {};
-    let res = thread::spawn(move || dbv.get_apartmentj(hotel_id, id))
-        .join()
-        .expect("Thread panicked");
+    let res =
+        thread::spawn(move || dbv.get_apartmentj(hotel_id, id, count_room, price_low, price_high))
+            .join()
+            .expect("Thread panicked");
     let j = serde_json::to_string(&res).unwrap();
     j
 }
@@ -195,4 +202,5 @@ fn rocket() -> _ {
         .mount("/", routes![insert_user])
         .mount("/", routes![get_user])
         .mount("/", routes![login])
+        .mount("/", routes![get_booking_user])
 }
