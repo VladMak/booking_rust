@@ -125,7 +125,10 @@ impl Db {
             query.push_str(" where hotj->>'id' = '");
             query.push_str(&id.to_string());
             query.push_str("' and hotj->>'isModified' = 'true';");
+        } else {
+            query.push_str(" where hotj->>'isModified' = 'true';");
         }
+        print!("ЗАПРОС: {}", query);
         for row in self.connecting().query(&query, &[]).unwrap() {
             let hotj: serde_json::Value = row.get(0);
             v.push(json_struct::hotel_j::Hotel_j { hotj: hotj });
@@ -174,20 +177,20 @@ impl Db {
         }
 
         if price_low != 0 && first_filter == 0 {
-            query.push_str(" where apaj->>'price_low' >= ");
+            query.push_str(" where (apaj->>'price')::float::integer >= ");
             query.push_str(&price_low.to_string());
             first_filter += 1;
         } else if price_low != 0 {
-            query.push_str(" and apaj->>'price_low' >= ");
+            query.push_str(" and (apaj->>'price')::float::integer >= ");
             query.push_str(&price_low.to_string());
         }
 
         if price_high != 0 && first_filter == 0 {
-            query.push_str(" where apaj->>'price_high' <= ");
+            query.push_str(" where (apaj->>'price')::float::integer <= ");
             query.push_str(&price_high.to_string());
             first_filter += 1;
         } else if price_high != 0 {
-            query.push_str(" and apaj->>'price_high' <= ");
+            query.push_str(" and (apaj->>'price')::float::integer <= ");
             query.push_str(&price_high.to_string());
         }
 

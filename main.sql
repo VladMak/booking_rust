@@ -374,3 +374,12 @@ select j->'id',
 from test_json;
 
 select j from test_json where j->'id' = '"12345"'::jsonb;
+
+select hotj from hotel_j where hotj->>'isModified' <> 'true' and hotj->>'isModified' <> 'false';
+update hotel_j set hotj->>'isModified' = 'true' where hotj->>'isModified' is null;
+update hotel_j set hotj = hotj || '{"isModified": "true"}'::jsonb where hotj->>'isModified' is null;
+
+select 
+    hotj,
+    hotj || '{"isModified": "true"}'::jsonb
+from hotel_j where hotj->>'id' = '0ce1bb26-536a-4724-92aa-cb6f3ed99e1e';
